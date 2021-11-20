@@ -35,25 +35,52 @@ func main() {
 	uuid1 := os.Getenv("SESAME3_UUID1")
 	uuid2 := os.Getenv("SESAME3_UUID2")
 
-	sign1, err := calculateSign(os.Getenv("SESAME3_SECRET_KEY1"))
-	if err != nil {
-		panic(err)
-	}
-
-	sign2, err := calculateSign(os.Getenv("SESAME3_SECRET_KEY2"))
-	if err != nil {
-		panic(err)
-	}
+	secretKey1 := os.Getenv("SESAME3_SECRET_KEY1")
+	secretKey2 := os.Getenv("SESAME3_SECRET_KEY2")
 
 	engine := gin.Default()
 	engine.POST("/lock", func(c *gin.Context) {
+		sign1, err := calculateSign(secretKey1)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		sign2, err := calculateSign(secretKey2)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
 		requestCommand(apiKey, uuid1, lockCommand, sign1)
 		requestCommand(apiKey, uuid2, lockCommand, sign2)
+
 		c.String(http.StatusOK, "OK")
 	})
 	engine.POST("/unlock", func(c *gin.Context) {
+		sign1, err := calculateSign(secretKey1)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		sign2, err := calculateSign(secretKey2)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
 		requestCommand(apiKey, uuid1, unlockCommand, sign1)
 		requestCommand(apiKey, uuid2, unlockCommand, sign2)
+
 		c.String(http.StatusOK, "OK")
 	})
 
