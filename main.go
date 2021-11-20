@@ -26,9 +26,7 @@ const (
 var applicationName = base64.StdEncoding.EncodeToString([]byte("sesame3-proxy"))
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		panic(err)
-	}
+	godotenv.Load()
 
 	port := os.Getenv("PORT")
 
